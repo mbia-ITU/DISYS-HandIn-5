@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+
+option go_package = "./gRPC";
+
+message Bid {
+    string uid = 1;
+    int32 amount = 2;
+}
+
+message Result {
+    string bidder = 1;
+    int32 ammount = 2;
+    Status status = 3;
+}
+
+enum Status {
+    OK = 0;
+    TOO_LOW = 1;
+    AUCTION_OVER = 2;
+}
