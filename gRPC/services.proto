@@ -1,7 +1,12 @@
 syntax = "proto3";
 
-
+import "google/protobuf/empty.proto";
 option go_package = "./gRPC";
+
+service service {
+    rpc MakeABid(Bid) returns (Result) {};
+    rpc GetResult(google.protobuf.Empty) returns (Result) {};
+}
 
 message Bid {
     string uid = 1;
