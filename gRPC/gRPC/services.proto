@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 option go_package = "./gRPC";
 
-package service;
+package gRPC;
 
 service service {
     rpc MakeABid(Bid) returns (Result) {};
@@ -17,12 +17,12 @@ message Bid {
 
 message Result {
     string bidder = 1;
-    int32 ammount = 2;
+    int32 amount = 2;
     Status status = 3;
 }
 
 enum Status {
-    OK = 0;
+    SUCCESS = 0;
     TOO_LOW = 1;
     AUCTION_OVER = 2;
 }

@@ -37,7 +37,7 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 
 func (c *serviceClient) MakeABid(ctx context.Context, in *Bid, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/service.service/MakeABid", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gRPC.service/MakeABid", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *serviceClient) MakeABid(ctx context.Context, in *Bid, opts ...grpc.Call
 
 func (c *serviceClient) GetResult(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Result, error) {
 	out := new(Result)
-	err := c.cc.Invoke(ctx, "/service.service/GetResult", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gRPC.service/GetResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func _Service_MakeABid_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/service.service/MakeABid",
+		FullMethod: "/gRPC.service/MakeABid",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).MakeABid(ctx, req.(*Bid))
@@ -111,7 +111,7 @@ func _Service_GetResult_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/service.service/GetResult",
+		FullMethod: "/gRPC.service/GetResult",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).GetResult(ctx, req.(*emptypb.Empty))
@@ -123,7 +123,7 @@ func _Service_GetResult_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Service_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "service.service",
+	ServiceName: "gRPC.service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
