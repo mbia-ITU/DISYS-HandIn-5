@@ -3,7 +3,7 @@ syntax = "proto3";
 import "google/protobuf/empty.proto";
 option go_package = "./gRPC";
 
-package service;
+package gRPC;
 
 service service {
     rpc MakeABid(Bid) returns (Result) {};
