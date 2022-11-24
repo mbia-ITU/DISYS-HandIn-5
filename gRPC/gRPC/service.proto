@@ -5,7 +5,7 @@ option go_package = "./gRPC";
 
 package gRPC;
 
-service service {
+service Thisservice {
     rpc MakeABid(Bid) returns (Result) {};
     rpc GetResult(google.protobuf.Empty) returns (Result) {};
 }

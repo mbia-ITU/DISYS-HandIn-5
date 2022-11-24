@@ -1,4 +1,4 @@
-module mod
+module github.com/mbia-ITU/DISYS-HandIn-5
 
 go 1.19
 
