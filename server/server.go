@@ -5,6 +5,7 @@ import (
 	"net"
 	"time"
 
+	service "github.com/mbia-ITU/DISYS-HandIn-5/gRPC/gRPC"
 	"google.golang.org/grpc"
 )
 
@@ -17,7 +18,7 @@ func main() {
 }
 
 type Server struct {
-	services.UnimplementedServiceServer
+	service.UnimplementedServiceServer
 }
 
 func OpenServer() {
@@ -32,11 +33,11 @@ func OpenServer() {
 
 	log.Print("Server is setup at port 5000.")
 
-	s := services.Server{}
+	s := service.Server{}
 
 	grpcServer := grpc.NewServer()
 
-	services.RegisterServicesServer(grpcServer, &s)
+	service.RegisterServicesServer(grpcServer, &s)
 
 	err = grpcServer.Serve(listener)
 
