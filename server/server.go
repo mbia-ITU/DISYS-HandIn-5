@@ -15,6 +15,7 @@ const (
 
 func main() {
 
+	OpenServer()
 }
 
 type Server struct {
@@ -36,7 +37,6 @@ func OpenServer() {
 	server := Server{}
 	service.RegisterThisserviceServer(grpcServer, &server)
 
-	// Beware, Serve is blocking
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to start gRPC Server :: %v", err)
 	}
