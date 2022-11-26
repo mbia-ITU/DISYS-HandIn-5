@@ -18,30 +18,26 @@ func main() {
 }
 
 type Server struct {
-	service.UnimplementedServiceServer
+	service.UnimplementedThisserviceServer
 }
 
 func OpenServer() {
 	log.Print("Loading...")
 
 	listener, err := net.Listen("tcp", "localhost:5000")
-
 	if err != nil {
-		log.Fatalf("Could not listen @ %s", err)
+		log.Fatalf("Error while attempting to listen on port 5000: %v", err)
 		return
 	}
 
 	log.Print("Server is setup at port 5000.")
-
-	s := service.Server{}
-
 	grpcServer := grpc.NewServer()
 
-	service.RegisterServicesServer(grpcServer, &s)
+	server := Server{}
+	service.RegisterThisserviceServer(grpcServer, &server)
 
-	err = grpcServer.Serve(listener)
-
-	if err != nil {
-		log.Fatal("Failed to start gRPC Server :: %v", err)
+	// Beware, Serve is blocking
+	if err := grpcServer.Serve(listener); err != nil {
+		log.Fatalf("Failed to start gRPC Server :: %v", err)
 	}
 }
