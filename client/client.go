@@ -189,7 +189,7 @@ func getHighestBid(rms *[]replicationManager) (service.Result, error) {
 	}
 	wg.Wait()
 
-	if auctionOver == true {
+	if auctionOver {
 		return service.Result{Status: service.Status_AUCTION_OVER}, fmt.Errorf("the auction has already ended")
 	}
 
@@ -254,7 +254,7 @@ func connectToAllNodes() {
 	}
 
 	for i := 0; i < numOfServers; i++ {
-		addr := fmt.Sprintf("biddingserver%d:5000", i+1)
+		addr := fmt.Sprintf("localhost:500%d", i)
 		NumOfNodes = append(NumOfNodes, addr)
 	}
 
@@ -282,7 +282,7 @@ func getConnection(addr string) (*grpc.ClientConn, error) {
 
 	connection, err := grpc.DialContext(contextWithTimeout, addr, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
-		return nil, fmt.Errorf("Couldn't connect to server: %s", err)
+		return nil, fmt.Errorf("couldn't connect to server: %s", err)
 	}
 
 	return connection, nil
