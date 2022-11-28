@@ -13,7 +13,6 @@ import (
 	service "github.com/mbia-ITU/DISYS-HandIn-5/gRPC/gRPC"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
-	//"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var (
@@ -28,6 +27,19 @@ type replicationManager struct {
 }
 
 func main() {
+
+	log.Printf("setting up the bidder...")
+	bidderName = os.Getenv("BIDDER_NAME")
+
+	if bidderName == "" {
+		log.Fatalf("no name was provided")
+	}
+
+	log.Printf("connecting to server nodes...")
+	connectToAllNodes()
+
+	log.Printf("setting up the auctionManager...")
+	auctionManager()
 
 }
 
@@ -69,7 +81,7 @@ func auctionManager() {
 		}
 
 		if scanner.Text() == "status" {
-			if result.getStatus == service.Status_AUCTION_OVER {
+			if result.GetStatus() == service.Status_AUCTION_OVER {
 				log.Printf("Auction is over. The winning bid was %v made by %v\n", result.Amount, result.Bidder)
 				return
 			} else {
@@ -81,17 +93,16 @@ func auctionManager() {
 
 		convBid, err := strconv.Atoi(scanner.Text())
 		if err != nil {
-			log.Printf("Input %v could not be converted to integer: %v\n", bid, err)
-		} else {
-			bid := int32(convBid)
+			log.Printf("Input %v could not be converted to integer: %v\n", convBid, err)
 		}
+		bid := int32(convBid)
 
-		if result.getStatus() == service.Status_AUCTION_OVER {
+		if result.GetStatus() == service.Status_AUCTION_OVER {
 			log.Printf("Auction is over. The winning bid was %v made by %v\n", result.Amount, result.Bidder)
 			return
 		}
 
-		if bid <= result.GetAmount {
+		if bid <= result.GetAmount() {
 			log.Printf("Tried to bid %v, but bid was to low compared to the current highest bid of %v made by %v\n", bid, result.Amount, result.Bidder)
 			continue
 		} else {
@@ -139,11 +150,69 @@ func MakeABidToAllReplications(rms *[]replicationManager, bid int32) {
 			wg.Done()
 		}(repMan)
 	}
+	wg.Wait()
+}
+
+func getHighestBid(rms *[]replicationManager) (service.Result, error) {
+
+	var allResults []service.Result
+	Locker := sync.Mutex{}
+	wg := sync.WaitGroup{}
+	auctionOver := false
+
+	for _, repManager := range *rms {
+		wg.Add(1)
+		go func(rm replicationManager) {
+			result, err := GetResult(rm)
+
+			if err != nil {
+				wg.Done()
+				return
+			}
+
+			if result.GetStatus() == service.Status_AUCTION_OVER {
+				Locker.Lock()
+				auctionOver = true
+				Locker.Unlock()
+				return
+			}
+
+			Locker.Lock()
+			allResults = append(allResults, makeResultDeepCopy(result))
+			Locker.Unlock()
+			wg.Done()
+
+		}(repManager)
+	}
+	wg.Wait()
+
+	if auctionOver == true {
+		return service.Result{Status: service.Status_AUCTION_OVER}, fmt.Errorf("the auction has already ended")
+	}
+
+	if len(allResults) > 0 {
+		highestResult := makeResultDeepCopy(&allResults[0])
+
+		for _, result := range allResults {
+			if result.Amount > highestResult.Amount {
+				highestResult = makeResultDeepCopy(&result)
+			}
+		}
+
+		return makeResultDeepCopy(&highestResult), nil
+	}
+
+	return service.Result{}, fmt.Errorf("there were no results to be returned")
 
 }
 
-func getHighestBid() {
+func makeResultDeepCopy(result *service.Result) service.Result {
 
+	return service.Result{
+		Bidder: result.GetBidder(),
+		Amount: result.GetAmount(),
+		Status: result.GetStatus(),
+	}
 }
 
 func GetResult(rm replicationManager) (*service.Result, error) {
@@ -178,7 +247,7 @@ func connectToAllNodes() {
 	servers := os.Getenv("SERVERS")
 	numOfServers, err := strconv.Atoi(servers)
 	if err != nil {
-		log.Fatalf("Could not convert number of server: %s. To an integer with error: %d.", numOfServers, err)
+		log.Fatalf("Could not convert number of server: %v. To an integer with error: %d.", numOfServers, err)
 	}
 
 	if numOfServers < 1 {
