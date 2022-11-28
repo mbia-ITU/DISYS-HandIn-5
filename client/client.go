@@ -29,11 +29,14 @@ type replicationManager struct {
 func main() {
 
 	log.Printf("setting up the bidder...")
-	bidderName = os.Getenv("BIDDER_NAME")
-
+	fmt.Printf("please provide a biddername:")
+	sc := bufio.NewScanner(os.Stdin)
+	sc.Scan()
+	bidderName = sc.Text()
 	if bidderName == "" {
 		log.Fatalf("no name was provided")
 	}
+	log.Printf("user named their bidder %v", sc.Text())
 
 	log.Printf("connecting to server nodes...")
 	connectToAllNodes()
@@ -244,11 +247,7 @@ func connectToNode(addr string) (service.ThisserviceClient, error) {
 }
 
 func connectToAllNodes() {
-	servers := os.Getenv("SERVERS")
-	numOfServers, err := strconv.Atoi(servers)
-	if err != nil {
-		log.Fatalf("Could not convert number of server: %v. To an integer with error: %d.", numOfServers, err)
-	}
+	numOfServers := 3
 
 	if numOfServers < 1 {
 		log.Fatalf("There are no servers. Exiting program.")

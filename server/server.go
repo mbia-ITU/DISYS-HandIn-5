@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
@@ -36,25 +37,31 @@ func main() {
 		time.Sleep(3 * time.Second)
 	}()
 
-	OpenServer()
+	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Printf("please provide a port for the server:")
+
+	scanner.Scan()
+	port := scanner.Text()
+
+	OpenServer(port)
 }
 
 type Server struct {
 	service.UnimplementedThisserviceServer
 }
 
-func OpenServer() {
+func OpenServer(_port string) {
 	log.Print("Loading...")
-	port := os.Getenv("PORT")
-	address := fmt.Sprintf("localhost:%v", port)
+	address := fmt.Sprintf("localhost:%v", _port)
 
 	listener, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatalf("Error while attempting to listen on port %v: %v", port, err)
+		log.Fatalf("Error while attempting to listen on port %v: %v", _port, err)
 		return
 	}
 
-	log.Print("Server is setup at port %v.", port)
+	log.Printf("Server is setup at port %v.", _port)
 	grpcServer := grpc.NewServer()
 
 	server := Server{}
