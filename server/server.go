@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	auctionTime = 300 * time.Second
+	auctionTime = 60 * time.Second
 )
 
 var (

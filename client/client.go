@@ -177,6 +177,7 @@ func getHighestBid(rms *[]replicationManager) (service.Result, error) {
 				Locker.Lock()
 				auctionOver = true
 				Locker.Unlock()
+				wg.Done()
 				return
 			}
 
