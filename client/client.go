@@ -2,26 +2,23 @@ package main
 
 import (
 	"bufio"
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
-
-	/*
-		"sync"
-		"time"
-		"context"
-		"fmt"
-	*/
+	"sync"
+	"time"
 
 	service "github.com/mbia-ITU/DISYS-HandIn-5/gRPC/gRPC"
-	/*
-		"google.golang.org/grpc"
-		"google.golang.org/protobuf/types/known/emptypb"
-	*/)
+	"google.golang.org/grpc"
+	//"google.golang.org/protobuf/types/known/emptypb"
+)
 
 var (
 	bidderName  string
 	rmDirectory = make(map[string]replicationManager)
+	NumOfNodes  []string
 )
 
 type replicationManager struct {
@@ -33,15 +30,36 @@ func main() {
 
 }
 
-func getReplicationManagers() {
+func getReplicationManagers() []replicationManager {
 
+	replicationManagers := make([]replicationManager, 0)
+
+	for _, nodeAddress := range NumOfNodes {
+		if client, success := rmDirectory[nodeAddress]; success {
+			replicationManagers = append(replicationManagers, client)
+		} else {
+			log.Printf("Reconnecting to: %v\n", nodeAddress)
+			connect, err := getConnection(nodeAddress)
+
+			if err == nil {
+				client := service.NewThisserviceClient(connect)
+				replicationManager := replicationManager{serviceClient: client, address: nodeAddress}
+				replicationManagers = append(replicationManagers, replicationManager)
+				rmDirectory[nodeAddress] = replicationManager
+			} else {
+				log.Printf("Attempted to reconnect to: %v. Could not succeed.\n", nodeAddress)
+			}
+		}
+	}
+
+	return replicationManagers
 }
 
 func auctionManager() {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for scanner.Scan() {
-		replicationManagers = getReplicationManagers
+		replicationManagers := getReplicationManagers()
 
 		result, err := getHighestBid(&replicationManagers)
 		if err != nil {
@@ -99,10 +117,59 @@ func GetResult() {
 
 }
 
-func connectToNode() {
+func connectToNode(addr string) (service.ThisserviceClient, error) {
+	connection, err := getConnection(addr)
+	if err != nil {
+		log.Printf("Could not connect to node: %v", addr)
+		return nil, err
+	}
 
+	client := service.NewThisserviceClient(connection)
+	return client, nil
 }
 
 func connectToAllNodes() {
+	servers := os.Getenv("SERVERS")
+	numOfServers, err := strconv.Atoi(servers)
+	if err != nil {
+		log.Fatalf("Could not convert number of server: %s. To an integer with error: %d.", numOfServers, err)
+	}
 
+	if numOfServers < 1 {
+		log.Fatalf("There are no servers. Exiting program.")
+	}
+
+	for i := 0; i < numOfServers; i++ {
+		addr := fmt.Sprintf("biddingserver%d:5000", i+1)
+		NumOfNodes = append(NumOfNodes, addr)
+	}
+
+	Locker := sync.Mutex{}
+	wg := sync.WaitGroup{}
+
+	for _, addr := range NumOfNodes {
+		wg.Add(1)
+		go func(addr string) {
+			client, _ := connectToNode(addr)
+
+			Locker.Lock()
+			rmDirectory[addr] = replicationManager{serviceClient: client, address: addr}
+			Locker.Unlock()
+			wg.Done()
+		}(addr)
+	}
+	wg.Wait()
+}
+
+func getConnection(addr string) (*grpc.ClientConn, error) {
+
+	contextWithTimeout, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	connection, err := grpc.DialContext(contextWithTimeout, addr, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		return nil, fmt.Errorf("Couldn't connect to server: %s", err)
+	}
+
+	return connection, nil
 }
