@@ -12,6 +12,7 @@ import (
 
 	service "github.com/mbia-ITU/DISYS-HandIn-5/gRPC/gRPC"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	//"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -78,9 +79,11 @@ func auctionManager() {
 
 		}
 
-		bid, err := strconv.Atoi(scanner.Text())
+		convBid, err := strconv.Atoi(scanner.Text())
 		if err != nil {
 			log.Printf("Input %v could not be converted to integer: %v\n", bid, err)
+		} else {
+			bid := int32(convBid)
 		}
 
 		if result.getStatus() == service.Status_AUCTION_OVER {
@@ -99,13 +102,43 @@ func auctionManager() {
 	}
 }
 
-func MakeABid(bid int32) error {
+func MakeABid(rm replicationManager, bid int32) error {
+
+	//create a context that will timeout in case we are contacting a dead service
+	contextWithTimeout, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	bidSent, err := rm.serviceClient.MakeABid(contextWithTimeout, &service.Bid{
+		Amount: bid,
+		Uid:    bidderName,
+	})
+
+	if err != nil {
+		log.Printf("faiiled to place a bid with error: %v\n", err)
+		delete(rmDirectory, rm.address)
+		return err
+	}
+
+	if bidSent.GetStatus() == service.Status_AUCTION_OVER {
+		return fmt.Errorf("the auction has already ended")
+	}
 
 	return nil
 
 }
 
-func MakeABidToAllReplications() {
+func MakeABidToAllReplications(rms *[]replicationManager, bid int32) {
+
+	wg := sync.WaitGroup{}
+
+	for _, repMan := range *rms {
+		wg.Add(1)
+
+		go func(rm replicationManager) {
+			MakeABid(rm, bid)
+			wg.Done()
+		}(repMan)
+	}
 
 }
 
@@ -113,7 +146,20 @@ func getHighestBid() {
 
 }
 
-func GetResult() {
+func GetResult(rm replicationManager) (*service.Result, error) {
+	//create a context that will timeout in case we are contacting a dead service
+	contextWithTimeout, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	//we use our getResult rpc call, which sends a unique empty message (the emptypb.Empty)
+	result, err := rm.serviceClient.GetResult(contextWithTimeout, &emptypb.Empty{})
+	if err != nil {
+		//this will happen if the connection is dead
+		log.Printf("failed to get result with error: %v\n", err)
+		delete(rmDirectory, rm.address)
+	}
+
+	return result, err
 
 }
 
