@@ -15,12 +15,14 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// Define variables used throughout the entire client code
 var (
 	bidderName  string
 	rmDirectory = make(map[string]replicationManager)
 	NumOfNodes  []string
 )
 
+// Define replicationManager as scruct for later
 type replicationManager struct {
 	serviceClient service.ThisserviceClient
 	address       string
@@ -46,6 +48,7 @@ func main() {
 
 }
 
+// Runs through known nodes to add replication managers from other nodes to own list.
 func getReplicationManagers() []replicationManager {
 
 	replicationManagers := make([]replicationManager, 0)
@@ -71,6 +74,7 @@ func getReplicationManagers() []replicationManager {
 	return replicationManagers
 }
 
+// Runs the entire auction process and handles user input.
 func auctionManager() {
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -117,6 +121,7 @@ func auctionManager() {
 	}
 }
 
+// Handles bids made my client.
 func MakeABid(rm replicationManager, bid int32) error {
 
 	//create a context that will timeout in case we are contacting a dead service
@@ -129,7 +134,7 @@ func MakeABid(rm replicationManager, bid int32) error {
 	})
 
 	if err != nil {
-		log.Printf("faiiled to place a bid with error: %v\n", err)
+		log.Printf("failed to place a bid with error: %v\n", err)
 		delete(rmDirectory, rm.address)
 		return err
 	}
@@ -142,6 +147,7 @@ func MakeABid(rm replicationManager, bid int32) error {
 
 }
 
+// Sends out bid to other replication managers from other nodes.
 func MakeABidToAllReplications(rms *[]replicationManager, bid int32) {
 
 	wg := sync.WaitGroup{}
@@ -157,6 +163,7 @@ func MakeABidToAllReplications(rms *[]replicationManager, bid int32) {
 	wg.Wait()
 }
 
+// Return the current highest bid.
 func getHighestBid(rms *[]replicationManager) (service.Result, error) {
 
 	var allResults []service.Result
@@ -211,6 +218,7 @@ func getHighestBid(rms *[]replicationManager) (service.Result, error) {
 
 }
 
+// Creates a complete copy of result in another place in memory.
 func makeResultDeepCopy(result *service.Result) service.Result {
 
 	return service.Result{
@@ -237,6 +245,7 @@ func GetResult(rm replicationManager) (*service.Result, error) {
 
 }
 
+// Handles connection to induvidual nqodes with known address
 func connectToNode(addr string) (service.ThisserviceClient, error) {
 	connection, err := getConnection(addr)
 	if err != nil {
@@ -248,6 +257,7 @@ func connectToNode(addr string) (service.ThisserviceClient, error) {
 	return client, nil
 }
 
+// Connects to all nodes with known addresses
 func connectToAllNodes() {
 	numOfServers := 3
 
@@ -277,6 +287,7 @@ func connectToAllNodes() {
 	wg.Wait()
 }
 
+// Etablish connection
 func getConnection(addr string) (*grpc.ClientConn, error) {
 
 	contextWithTimeout, cancel := context.WithTimeout(context.Background(), 2*time.Second)

@@ -5,6 +5,7 @@ option go_package = "./gRPC";
 
 package gRPC;
 
+//Define RPC methods
 service Thisservice {
     rpc MakeABid(Bid) returns (Result) {};
     rpc GetResult(google.protobuf.Empty) returns (Result) {};
@@ -21,6 +22,7 @@ message Result {
     Status status = 3;
 }
 
+//Status used my Result message
 enum Status {
     SUCCESS = 0;
     TOO_LOW = 1;

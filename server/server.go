@@ -15,10 +15,12 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+// Define how long the auction is in seconds.
 const (
 	auctionTime = 120 * time.Second
 )
 
+// Define variables used throughout the entire server code
 var (
 	highestbid = service.Result{
 		Bidder: "No one",
@@ -26,6 +28,7 @@ var (
 		Status: service.Status_SUCCESS,
 	}
 
+	//Used to lock and unlock to make sure no one can bid at the same time
 	Locker sync.Mutex
 )
 
@@ -51,6 +54,7 @@ type Server struct {
 	service.UnimplementedThisserviceServer
 }
 
+// Opens a server on user defined port
 func OpenServer(_port string) {
 	log.Print("Loading...")
 	address := fmt.Sprintf("localhost:%v", _port)
@@ -72,6 +76,7 @@ func OpenServer(_port string) {
 	}
 }
 
+// Keeps track of bidding to determine if a bid is valid.
 func (s *Server) MakeABid(ctx context.Context, bid *service.Bid) (*service.Result, error) {
 	Locker.Lock()
 	defer Locker.Unlock()
@@ -97,6 +102,7 @@ func (s *Server) MakeABid(ctx context.Context, bid *service.Bid) (*service.Resul
 	return &highestbid, nil
 }
 
+// Returns the current highest bid
 func (s *Server) GetResult(ctx context.Context, _ *emptypb.Empty) (*service.Result, error) {
 	Locker.Lock()
 	defer Locker.Unlock()
@@ -104,6 +110,7 @@ func (s *Server) GetResult(ctx context.Context, _ *emptypb.Empty) (*service.Resu
 	return &highestbid, nil
 }
 
+// Checks if the auction status has been set to AUCTION_OVER
 func auctionOver() {
 	Locker.Lock()
 	defer Locker.Unlock()
