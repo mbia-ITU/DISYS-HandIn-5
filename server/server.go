@@ -86,12 +86,13 @@ func (s *Server) MakeABid(ctx context.Context, bid *service.Bid) (*service.Resul
 		return &service.Result{Status: service.Status_TOO_LOW}, nil
 	}
 
+	log.Printf("New highest bid of %v made by %v has beaten old bid of %v by %v\n", bid.Amount, bid.Uid, highestbid.Amount, highestbid.Bidder)
+
 	highestbid = service.Result{
 		Amount: bid.Amount,
 		Bidder: bid.Uid,
 		Status: service.Status_SUCCESS,
 	}
-	log.Printf("New highest bid of %v made by %v has beaten old bid of %v by %v\n", bid.Amount, bid.Uid, highestbid.Amount, highestbid.Bidder)
 
 	return &highestbid, nil
 }

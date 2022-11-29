@@ -78,6 +78,7 @@ func auctionManager() {
 		replicationManagers := getReplicationManagers()
 
 		result, err := getHighestBid(&replicationManagers)
+
 		if err != nil {
 			log.Printf("Trouble fetching result from replication managers %d\n", err)
 			continue
@@ -191,7 +192,7 @@ func getHighestBid(rms *[]replicationManager) (service.Result, error) {
 	wg.Wait()
 
 	if auctionOver {
-		return service.Result{Status: service.Status_AUCTION_OVER}, fmt.Errorf("the auction has already ended")
+		return service.Result{Status: service.Status_AUCTION_OVER}, nil
 	}
 
 	if len(allResults) > 0 {
