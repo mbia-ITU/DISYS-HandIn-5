@@ -1,16 +1,99 @@
 Server 1:
+please provide a port for the server:5000
+2022/11/29 18:32:43 Loading...
+2022/11/29 18:32:43 Server is setup at port 5000.
+2022/11/29 18:33:16 Highest bid is 0 made by No one
+2022/11/29 18:33:16 New highest bid of 14 made by client0 has beaten old bid of 0 by No one  
+2022/11/29 18:33:19 Highest bid is 14 made by client0                                        
+2022/11/29 18:33:19 New highest bid of 64 made by client1 has beaten old bid of 14 by client0
+2022/11/29 18:33:23 Highest bid is 64 made by client1
+2022/11/29 18:33:27 Highest bid is 64 made by client1
+2022/11/29 18:33:35 Highest bid is 64 made by client1                                        1
+2022/11/29 18:33:35 New highest bid of 112 made by client0 has beaten old bid of 64 by client1
+2022/11/29 18:34:12 Highest bid is 112 made by client0
+2022/11/29 18:34:14 New highest bid of 554 made by client2 has beaten old bid of 112 by client0
+2022/11/29 18:34:33 Highest bid is 554 made by client2
+2022/11/29 18:34:33 New highest bid of 663 made by client2 has beaten old bid of 554 by client2
+2022/11/29 18:35:41 Auction is over. The winning bid was 663 made by client2
 
 
 Server 2:
+please provide a port for the server:5001
+2022/11/29 18:32:48 Loading...
+2022/11/29 18:32:48 Server is setup at port 5001.
+2022/11/29 18:33:16 Highest bid is 0 made by No one
+2022/11/29 18:33:16 New highest bid of 14 made by client0 has beaten old bid of 0 by No one  
+2022/11/29 18:33:19 Highest bid is 14 made by client0                                        
+2022/11/29 18:33:19 New highest bid of 64 made by client1 has beaten old bid of 14 by client0
+2022/11/29 18:33:23 Highest bid is 64 made by client1
+2022/11/29 18:33:27 Highest bid is 64 made by client1
+2022/11/29 18:33:35 Highest bid is 64 made by client1                                        1
+2022/11/29 18:33:35 New highest bid of 112 made by client0 has beaten old bid of 64 by client1
+2022/11/29 18:34:12 Highest bid is 112 made by client0
+2022/11/29 18:34:14 New highest bid of 554 made by client2 has beaten old bid of 112 by client0
+2022/11/29 18:34:33 Highest bid is 554 made by client2
+2022/11/29 18:34:33 New highest bid of 663 made by client2 has beaten old bid of 554 by client2
+2022/11/29 18:35:46 Auction is over. The winning bid was 663 made by client2
 
 
 Server 3:
+please provide a port for the server:5002
+2022/11/29 18:32:53 Loading...
+2022/11/29 18:32:53 Server is setup at port 5002.
+2022/11/29 18:33:16 Highest bid is 0 made by No one
+2022/11/29 18:33:16 New highest bid of 14 made by client0 has beaten old bid of 0 by No one
+2022/11/29 18:33:19 Highest bid is 14 made by client0
+2022/11/29 18:33:19 New highest bid of 64 made by client1 has beaten old bid of 14 by client0
+2022/11/29 18:33:23 Highest bid is 64 made by client1
+2022/11/29 18:33:27 Highest bid is 64 made by client1
+2022/11/29 18:33:35 Highest bid is 64 made by client1
+2022/11/29 18:33:35 New highest bid of 112 made by client0 has beaten old bid of 64 by client1
 
+**simulated crash**
+
+please provide a port for the server:5002
+2022/11/29 18:34:20 Loading...
+2022/11/29 18:34:20 Server is setup at port 5002.
+2022/11/29 18:34:33 Highest bid is 0 made by No one
+2022/11/29 18:34:33 New highest bid of 663 made by client2 has beaten old bid of 0 by No one
+2022/11/29 18:37:05 Auction is over. The winning bid was 663 made by client2
 
 Client 1:
+2022/11/29 18:32:58 setting up the bidder...
+please provide a biddername:client0
+2022/11/29 18:33:00 user named their bidder client0
+2022/11/29 18:33:00 connecting to server nodes...
+2022/11/29 18:33:00 setting up the auctionManager...
+14
+2022/11/29 18:33:16 Making a bid of 14. To beat the current highest bid.
+112
+2022/11/29 18:33:35 Making a bid of 112. To beat the current highest bid.
 
 
 Client 2:
+2022/11/29 18:33:03 setting up the bidder...
+please provide a biddername:client1
+2022/11/29 18:33:04 user named their bidder client1
+2022/11/29 18:33:04 connecting to server nodes...
+2022/11/29 18:33:04 setting up the auctionManager...
+64
+2022/11/29 18:33:19 Making a bid of 64. To beat the current highest bid.
+status
+2022/11/29 18:33:27 Current highest bid is 64 made by client1.
 
 
 Client 3:
+2022/11/29 18:33:07 setting up the bidder...
+please provide a biddername:client2
+2022/11/29 18:33:13 user named their bidder client2
+2022/11/29 18:33:13 connecting to server nodes...
+2022/11/29 18:33:13 setting up the auctionManager...
+23
+2022/11/29 18:33:23 Tried to bid 23, but bid was to low compared to the current highest bid of 64 made by client1
+554
+2022/11/29 18:34:14 failed to get result with error: rpc error: code = DeadlineExceeded desc = context deadline exceeded
+2022/11/29 18:34:14 Making a bid of 554. To beat the current highest bid.
+2022/11/29 18:34:14 faiiled to place a bid with error: rpc error: code = Unavailable desc = connection error: desc = "transport: Error while dialing dial tcp [::1]:5002: connectex: No connection could be made because the target machine actively refused it."
+663
+2022/11/29 18:34:33 Reconnecting to: localhost:5002
+2022/11/29 18:34:33 Making a bid of 663. To beat the current highest bid.
